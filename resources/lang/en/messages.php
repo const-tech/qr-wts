@@ -63,6 +63,8 @@ return [
     'session_restarted'  => 'Session restarted, scan the code again.',
     'open_dashboard'     => 'Open :brand dashboard',
     'provision_pending'  => 'Provisioning your session… the pairing code will appear shortly.',
+    'preparing_session'  => 'Preparing your session…',
+    'preparing_long'     => 'This is taking longer than usual. If the delay continues, please contact support:',
 
     'expired_title'      => 'Your free plan has expired',
     'expired_subtitle'   => 'Upgrade to keep sending, or restart the session later.',

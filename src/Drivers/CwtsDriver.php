@@ -91,15 +91,43 @@ class CwtsDriver implements GatewayDriver
 
     public function register(RegisterPayload $payload): SubscriptionData
     {
-        $path = $this->config['endpoints']['register'] ?? '/api/register';
+        // Try the explicitly configured endpoint first; if that fails (404,
+        // 405, etc.), walk through a list of well-known reseller paths.
+        // c-wts.com hasn't published a public register endpoint, so this
+        // gives the host project a chance to land on whichever path their
+        // c-wts.com account exposes without code edits.
+        $candidates = [];
+        $configured = $this->config['endpoints']['register'] ?? null;
+        if ($configured) {
+            $candidates[] = $configured;
+        }
+        $candidates = array_unique(array_merge($candidates, [
+            '/api/register',
+            '/api/customer/register',
+            '/api/account/register',
+            '/api/reseller/register',
+            '/api/subscriptions/register',
+            '/api/instances/create',
+        ]));
 
-        // admin_token is optional — only attached if configured.
-        $response = $this->withAdminToken($this->asForm())->post(
-            $path,
-            $payload->toArray()
-        );
-        $data = $this->unwrap($response, 'subscription');
-        return SubscriptionData::fromArray($data);
+        $lastError = null;
+        foreach ($candidates as $path) {
+            try {
+                $response = $this->withAdminToken($this->asForm())->post(
+                    $path,
+                    $payload->toArray()
+                );
+                if ($response->successful()) {
+                    $data = $this->unwrap($response, 'subscription');
+                    return SubscriptionData::fromArray($data);
+                }
+                $lastError = $response->status() . ' on ' . $path;
+            } catch (\Throwable $e) {
+                $lastError = $e->getMessage();
+            }
+        }
+
+        throw new GatewayException('No register endpoint accepted the payload. Last error: ' . ($lastError ?? 'unknown'));
     }
 
     public function restartSession(string $instanceId, string $accessToken): bool

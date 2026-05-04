@@ -23,146 +23,76 @@
                 </div>
             @endif
 
-            @if ($errors->any())
-                <div class="alert alert-danger">
-                    <ul class="mb-0">
-                        @foreach ($errors->all() as $err)
-                            <li>{{ $err }}</li>
-                        @endforeach
-                    </ul>
+            {{-- ================= PENDING / QR ================= --}}
+            <div id="wa-pending" class="text-center">
+                <h3 class="fw-bold">{{ __('whatsapp-gateway::messages.connect_title') }}</h3>
+                <p class="text-muted mb-4">{{ __('whatsapp-gateway::messages.connect_subtitle') }}</p>
+                <div class="qr-frame mb-3">
+                    <div id="wa-qr-placeholder" class="d-flex flex-column align-items-center justify-content-center text-muted"
+                         style="width:280px; height:280px; gap:.75rem;">
+                        <div class="spinner-border text-success" role="status"></div>
+                        <small id="wa-prep-msg" class="px-3 small">{{ __('whatsapp-gateway::messages.preparing_session') }}</small>
+                    </div>
+                    <img id="wa-qr-img" alt="QR" style="display:none">
                 </div>
-            @endif
-
-            {{-- ================= CLAIM (when auto-provision unavailable) ================= --}}
-            @if ($needsCreds)
-                <div id="wa-claim" class="text-center">
-                    <i class="fa-solid fa-key text-success" style="font-size:3rem"></i>
-                    <h3 class="fw-bold mt-2">{{ __('whatsapp-gateway::messages.attach_title') }}</h3>
-                    <p class="text-muted">
-                        {{ __('whatsapp-gateway::messages.attach_subtitle', ['brand' => $brand]) }}
-                    </p>
-
-                    @if (!empty($signupUrl))
-                        <a href="{{ $signupUrl }}" target="_blank" rel="noopener"
-                           class="btn btn-outline-success btn-sm mb-3">
-                            <i class="fa-solid fa-external-link-alt"></i>
-                            {{ __('whatsapp-gateway::messages.open_signup') }}
+                <div class="text-muted">
+                    <span class="pulse-dot"></span>
+                    <span id="wa-status-label" class="ms-2">{{ __('whatsapp-gateway::messages.connect_polling') }}</span>
+                </div>
+                <div id="wa-prep-help" class="alert alert-info mt-3 d-none">
+                    <i class="fa-solid fa-circle-info"></i>
+                    {{ __('whatsapp-gateway::messages.preparing_long') }}
+                    @if (config('whatsapp-gateway.branding.support_phone'))
+                        <a href="tel:{{ config('whatsapp-gateway.branding.support_phone') }}" class="alert-link ms-2">
+                            <i class="fa-solid fa-headset"></i> {{ config('whatsapp-gateway.branding.support_phone') }}
                         </a>
                     @endif
-
-                    <form method="POST" action="{{ route('whatsapp-gateway.attach', $sub->local_token) }}"
-                          class="text-start mt-3">
-                        @csrf
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold">{{ __('whatsapp-gateway::messages.instance_id') }}</label>
-                                <input type="text" name="instance_id" required dir="ltr"
-                                       value="{{ old('instance_id') }}"
-                                       placeholder="instance12345"
-                                       class="form-control font-monospace @error('instance_id') is-invalid @enderror">
-                                @error('instance_id')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold">{{ __('whatsapp-gateway::messages.access_token') }}</label>
-                                <input type="text" name="access_token" required dir="ltr"
-                                       value="{{ old('access_token') }}"
-                                       placeholder="xxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-                                       class="form-control font-monospace @error('access_token') is-invalid @enderror">
-                                @error('access_token')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                            </div>
-                        </div>
-                        <div class="nav-actions">
-                            <a href="{{ route('whatsapp-gateway.register.show') }}" class="btn btn-outline-secondary">
-                                <i class="fa-solid fa-arrow-{{ app()->getLocale() === 'ar' ? 'right' : 'left' }}"></i>
-                                {{ __('whatsapp-gateway::messages.cta_back') }}
-                            </a>
-                            <button type="submit" class="btn btn-success fw-bold flex-grow-1">
-                                <i class="fa-solid fa-link"></i>
-                                {{ __('whatsapp-gateway::messages.attach_submit') }}
-                            </button>
-                        </div>
-                    </form>
                 </div>
-            @else
+            </div>
 
-                {{-- ================= PENDING (waiting for QR scan) ================= --}}
-                <div id="wa-pending" class="text-center">
-                    <h3 class="fw-bold">{{ __('whatsapp-gateway::messages.connect_title') }}</h3>
-                    <p class="text-muted mb-4">{{ __('whatsapp-gateway::messages.connect_subtitle') }}</p>
-                    <div class="qr-frame mb-3">
-                        <div id="wa-qr-placeholder" class="d-flex align-items-center justify-content-center"
-                             style="width:280px; height:280px;">
-                            <div class="spinner-border text-success" role="status"></div>
-                        </div>
-                        <img id="wa-qr-img" alt="QR" style="display:none">
-                    </div>
-                    <div class="text-muted">
-                        <span class="pulse-dot"></span>
-                        <span id="wa-status-label" class="ms-2">{{ __('whatsapp-gateway::messages.connect_polling') }}</span>
-                    </div>
-                    <div id="wa-qr-error" class="alert alert-warning mt-3 d-none"></div>
+            {{-- ================= CONNECTED (success) ================= --}}
+            <div id="wa-connected" class="text-center d-none">
+                <div class="celebration-icon">
+                    <span style="font-size:4rem">🎉</span>
                 </div>
+                <h3 class="fw-bold mt-3 text-success">{{ __('whatsapp-gateway::messages.success_title') }}</h3>
+                <p class="text-muted mb-1">{{ __('whatsapp-gateway::messages.connected_subtitle') }}</p>
+                <p class="fw-bold text-success mb-4">
+                    <i class="fa-solid fa-circle-check"></i>
+                    {{ __('whatsapp-gateway::messages.success_message') }}
+                </p>
 
-                {{-- ================= CONNECTED (success) ================= --}}
-                <div id="wa-connected" class="text-center d-none">
-                    <div class="celebration-icon">
-                        <span style="font-size:4rem">🎉</span>
+                {{-- Plan info — populated live from /poll --}}
+                <div id="wa-plan-info" class="wa-card bg-light p-3 mt-3 d-none">
+                    <h6 class="fw-bold mb-3 text-success">
+                        <i class="fa-solid fa-box-open"></i>
+                        {{ __('whatsapp-gateway::messages.plan_info_title') }}
+                    </h6>
+                    <div class="row g-2 text-start">
+                        <div class="col-6 col-md-3">
+                            <small class="text-muted d-block">{{ __('whatsapp-gateway::messages.plan_status') }}</small>
+                            <strong id="wa-plan-state" class="text-success">—</strong>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <small class="text-muted d-block">{{ __('whatsapp-gateway::messages.plan_used') }}</small>
+                            <strong id="wa-plan-used">—</strong>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <small class="text-muted d-block">{{ __('whatsapp-gateway::messages.plan_limit') }}</small>
+                            <strong id="wa-plan-limit">—</strong>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <small class="text-muted d-block">{{ __('whatsapp-gateway::messages.expires_at') }}</small>
+                            <strong id="wa-plan-expires">—</strong>
+                        </div>
                     </div>
-                    <h3 class="fw-bold mt-3 text-success">{{ __('whatsapp-gateway::messages.success_title') }}</h3>
-                    <p class="text-muted mb-1">{{ __('whatsapp-gateway::messages.connected_subtitle') }}</p>
-                    <p class="fw-bold text-success mb-4">
-                        <i class="fa-solid fa-circle-check"></i>
-                        {{ __('whatsapp-gateway::messages.success_message') }}
-                    </p>
-
-                    <div class="row g-3 my-4 text-start">
-                        <div class="col-md-6">
-                            <div class="stat-pill">
-                                <small class="text-muted d-block">{{ __('whatsapp-gateway::messages.instance_id') }}</small>
-                                <code class="fs-6" id="wa-instance-id">{{ $sub->instance_id }}</code>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="stat-pill">
-                                <small class="text-muted d-block">{{ __('whatsapp-gateway::messages.token') }}</small>
-                                <code class="fs-6 text-truncate d-inline-block" style="max-width:100%;" id="wa-token">{{ $sub->token }}</code>
-                            </div>
-                        </div>
-                    </div>
-
-                    {{-- Plan info — populated live from /poll --}}
-                    <div id="wa-plan-info" class="wa-card bg-light p-3 mt-3 d-none">
-                        <h6 class="fw-bold mb-3 text-success">
-                            <i class="fa-solid fa-box-open"></i>
-                            {{ __('whatsapp-gateway::messages.plan_info_title') }}
-                        </h6>
-                        <div class="row g-2 text-start">
-                            <div class="col-6 col-md-3">
-                                <small class="text-muted d-block">{{ __('whatsapp-gateway::messages.plan_status') }}</small>
-                                <strong id="wa-plan-state" class="text-success">—</strong>
-                            </div>
-                            <div class="col-6 col-md-3">
-                                <small class="text-muted d-block">{{ __('whatsapp-gateway::messages.plan_used') }}</small>
-                                <strong id="wa-plan-used">—</strong>
-                            </div>
-                            <div class="col-6 col-md-3">
-                                <small class="text-muted d-block">{{ __('whatsapp-gateway::messages.plan_limit') }}</small>
-                                <strong id="wa-plan-limit">—</strong>
-                            </div>
-                            <div class="col-6 col-md-3">
-                                <small class="text-muted d-block">{{ __('whatsapp-gateway::messages.expires_at') }}</small>
-                                <strong id="wa-plan-expires">—</strong>
-                            </div>
-                        </div>
-                        <div id="wa-plan-progress-wrap" class="mt-3 d-none">
-                            <div class="progress" style="height:.6rem;">
-                                <div id="wa-plan-progress" class="progress-bar bg-success" style="width:0%"></div>
-                            </div>
+                    <div id="wa-plan-progress-wrap" class="mt-3 d-none">
+                        <div class="progress" style="height:.6rem;">
+                            <div id="wa-plan-progress" class="progress-bar bg-success" style="width:0%"></div>
                         </div>
                     </div>
                 </div>
-
-            @endif
+            </div>
 
             <div class="nav-actions">
                 <a href="{{ route('whatsapp-gateway.register.show') }}" class="btn btn-outline-secondary">
@@ -191,7 +121,6 @@
 </style>
 @endsection
 
-@if (! $needsCreds)
 @push('scripts')
 <script>
 (function() {
@@ -202,11 +131,11 @@
 
     const $qrImg     = document.getElementById('wa-qr-img');
     const $qrPlace   = document.getElementById('wa-qr-placeholder');
-    const $qrError   = document.getElementById('wa-qr-error');
+    const $prepMsg   = document.getElementById('wa-prep-msg');
+    const $prepHelp  = document.getElementById('wa-prep-help');
     const $pending   = document.getElementById('wa-pending');
     const $connected = document.getElementById('wa-connected');
     const $statusLbl = document.getElementById('wa-status-label');
-    const $instId    = document.getElementById('wa-instance-id');
     const $planInfo  = document.getElementById('wa-plan-info');
     const $planState = document.getElementById('wa-plan-state');
     const $planUsed  = document.getElementById('wa-plan-used');
@@ -216,6 +145,8 @@
     const $planProg  = document.getElementById('wa-plan-progress');
 
     let stopped = false;
+    let attempts = 0;
+    const HELP_AFTER = 5; // show "still preparing" help after 5 ticks (~15s)
 
     function fmtDate(iso) {
         if (!iso) return '—';
@@ -250,22 +181,20 @@
 
     async function tick() {
         if (stopped) return;
+        attempts++;
         try {
             const res = await fetch(pollUrl, { headers: { 'Accept': 'application/json' }});
             const json = await res.json();
             if (!json.ok) throw new Error(json.error || 'gateway error');
 
             const state = json.status.state;
-            if (json.sub && json.sub.instance_id && $instId) {
-                $instId.textContent = json.sub.instance_id;
-            }
+            const provisioning = !json.sub || !json.sub.instance_id;
 
             if (state === 'connected') {
                 stopped = true;
                 $pending.classList.add('d-none');
                 $connected.classList.remove('d-none');
                 renderPlan(json.status);
-                // Clear the saved registration form data — no longer needed.
                 try { localStorage.removeItem('wa_register_form'); } catch(e) {}
                 return;
             }
@@ -280,16 +209,20 @@
                 $qrImg.src = json.qr.base64 || json.qr.url;
                 $qrImg.style.display = 'block';
                 $qrPlace.style.display = 'none';
-                $qrError.classList.add('d-none');
-            } else if (json.qr_error) {
-                $qrError.textContent = json.qr_error;
-                $qrError.classList.remove('d-none');
+                $prepHelp.classList.add('d-none');
+            } else {
+                // Still preparing — show friendly help after a few attempts.
+                if (provisioning && attempts >= HELP_AFTER) {
+                    $prepHelp.classList.remove('d-none');
+                }
+                if (json.qr_error && $prepMsg) {
+                    $prepMsg.textContent = json.qr_error;
+                }
             }
 
-            $statusLbl.textContent = labelPolling + ' (' + state + ')';
+            $statusLbl.textContent = labelPolling;
         } catch (e) {
-            $qrError.textContent = e.message;
-            $qrError.classList.remove('d-none');
+            if ($prepMsg) $prepMsg.textContent = e.message;
         } finally {
             if (!stopped) setTimeout(tick, 3000);
         }
@@ -298,4 +231,3 @@
 })();
 </script>
 @endpush
-@endif
