@@ -125,3 +125,35 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+// Preserve the registration form across navigation (Back button) using
+// localStorage. Cleared after the customer reaches the Connected screen.
+(function() {
+    const KEY  = 'wa_register_form';
+    const form = document.querySelector('form[action="{{ route('whatsapp-gateway.register') }}"]');
+    if (!form) return;
+
+    // Restore previously typed values, only if the field is empty (so old()
+    // values from a server-side validation error still take priority).
+    try {
+        const saved = JSON.parse(localStorage.getItem(KEY) || '{}');
+        Object.entries(saved).forEach(([name, value]) => {
+            const el = form.querySelector('[name="' + name + '"]');
+            if (el && !el.value && value) el.value = value;
+        });
+    } catch (e) {}
+
+    form.addEventListener('input', function() {
+        try {
+            const data = {};
+            new FormData(form).forEach(function(v, k) {
+                if (k !== '_token' && k !== 'package' && k !== 'access_token') data[k] = v;
+            });
+            localStorage.setItem(KEY, JSON.stringify(data));
+        } catch (e) {}
+    });
+})();
+</script>
+@endpush

@@ -126,8 +126,10 @@ class SubscribeController extends Controller
         }
 
         return view('whatsapp-gateway::qr', [
-            'sub'     => $sub,
-            'qr'      => null, // loaded async by JS to avoid blocking the page
+            'sub'        => $sub,
+            'qr'         => null, // loaded async by JS to avoid blocking the page
+            'needsCreds' => empty($sub->instance_id) || empty($sub->token),
+            'signupUrl'  => $this->gateway->signupUrl(),
         ]);
     }
 
@@ -209,6 +211,33 @@ class SubscribeController extends Controller
         } catch (Throwable $e) {
             Log::debug('whatsapp-gateway: poll auto-provision retry failed', ['error' => $e->getMessage()]);
         }
+    }
+
+    /**
+     * Attach existing c-wts.com credentials to a subscription. Used as a
+     * fallback when auto-provisioning isn't available — the customer
+     * pastes their {instance_id, access_token} on the QR page itself.
+     */
+    public function attach(Request $request, string $token)
+    {
+        $sub = $this->resolve($token);
+
+        $data = Validator::make($request->all(), [
+            'instance_id'  => 'required|string|max:120',
+            'access_token' => 'required|string|max:120',
+        ])->validate();
+
+        try {
+            $this->gateway->driver()->verify($data['instance_id'], $data['access_token']);
+        } catch (Throwable $e) {
+            return back()->withErrors(['gateway' => __('whatsapp-gateway::messages.gateway_error') . ' — ' . $e->getMessage()]);
+        }
+
+        $sub->instance_id = $data['instance_id'];
+        $sub->token       = $data['access_token'];
+        $sub->save();
+
+        return redirect()->route('whatsapp-gateway.connect', ['token' => $sub->local_token]);
     }
 
     /**

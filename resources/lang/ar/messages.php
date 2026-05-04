@@ -44,6 +44,19 @@ return [
     'connect_polling'    => 'جاري انتظار الاتصال…',
     'connected_title'    => 'تم الربط بنجاح',
     'connected_subtitle' => 'باقتك المجانية مفعّلة. تم حفظ بيانات الجلسة تلقائياً في برنامجك.',
+    'success_title'      => '🎉 مبروك! تمت العملية بنجاح',
+    'success_message'    => 'تم تفعيل واتساب على رقمك وحُفظ المفتاح تلقائياً.',
+
+    // attach (inline claim form on QR page)
+    'attach_title'       => 'نحتاج بيانات حسابك من بوابة الواتساب',
+    'attach_subtitle'    => 'لم نتمكن من إنشاء الجلسة تلقائياً. افتح حسابك على :brand وألصق المعرّف والمفتاح هنا، وسنتولى الباقي.',
+    'attach_submit'      => 'تأكيد البيانات وعرض كود الربط',
+
+    // plan info on connected screen
+    'plan_info_title'    => 'تفاصيل الباقة',
+    'plan_status'        => 'الحالة',
+    'plan_used'          => 'المستخدم',
+    'plan_limit'         => 'حد الرسائل',
     'token'              => 'مفتاح الإرسال',
     'expires_at'         => 'تنتهي الباقة في',
     'restart_session'    => 'إعادة الجلسة',

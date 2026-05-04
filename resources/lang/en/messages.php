@@ -43,6 +43,17 @@ return [
     'connect_polling'    => 'Waiting for connection…',
     'connected_title'    => 'Successfully connected',
     'connected_subtitle' => 'Your free plan is active. Session credentials were saved automatically in your app.',
+    'success_title'      => '🎉 Congratulations! Everything is set up',
+    'success_message'    => 'WhatsApp is linked to your number and the key was saved automatically.',
+
+    'attach_title'       => 'We need your gateway credentials',
+    'attach_subtitle'    => 'We could not provision a session automatically. Open your account on :brand and paste your instance ID and access token here.',
+    'attach_submit'      => 'Confirm & show pairing code',
+
+    'plan_info_title'    => 'Plan details',
+    'plan_status'        => 'State',
+    'plan_used'          => 'Used',
+    'plan_limit'         => 'Limit',
     'token'              => 'Send token',
     'expires_at'         => 'Plan expires at',
     'restart_session'    => 'Restart session',
