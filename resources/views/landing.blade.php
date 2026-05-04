@@ -82,7 +82,15 @@
     </a>
 </div>
 
-{{-- ======================== Features modal ======================== --}}
+<style>
+    .wa-cta-primary { font-size:1.35rem; padding:1rem 2.4rem; border-radius:1rem; }
+    .wa-cta-primary:hover { transform: translateY(-2px); transition: transform .2s ease; }
+    .wa-feat-card { background: linear-gradient(135deg, rgba(37,211,102,.06), rgba(18,140,126,.04)); border:1px solid rgba(37,211,102,.18); }
+    .wa-feat-icon { width:42px; height:42px; border-radius:50%; background:var(--wa-green); color:#fff; display:inline-flex; align-items:center; justify-content:center; font-size:1.1rem; flex-shrink:0; }
+</style>
+@endsection
+
+@push('modals')
 <div class="modal fade" id="waFeaturesModal" tabindex="-1" aria-labelledby="waFeaturesModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
         <div class="modal-content border-0 shadow-lg" style="border-radius:1.25rem; overflow:hidden;">
@@ -130,11 +138,4 @@
         </div>
     </div>
 </div>
-
-<style>
-    .wa-cta-primary { font-size:1.35rem; padding:1rem 2.4rem; border-radius:1rem; }
-    .wa-cta-primary:hover { transform: translateY(-2px); transition: transform .2s ease; }
-    .wa-feat-card { background: linear-gradient(135deg, rgba(37,211,102,.06), rgba(18,140,126,.04)); border:1px solid rgba(37,211,102,.18); }
-    .wa-feat-icon { width:42px; height:42px; border-radius:50%; background:var(--wa-green); color:#fff; display:inline-flex; align-items:center; justify-content:center; font-size:1.1rem; flex-shrink:0; }
-</style>
-@endsection
+@endpush

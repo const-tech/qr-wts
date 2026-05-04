@@ -15,11 +15,13 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         :root { --wa-green:#25D366; --wa-dark:#128C7E; --wa-deep:#075E54; }
-        body { font-family: 'Tajawal', system-ui, sans-serif; background:#f4f7f9; min-height:100vh; position:relative; overflow-x:hidden; }
+        body { font-family: 'Tajawal', system-ui, sans-serif; background:#f4f7f9; min-height:100vh; position:relative; }
+        /* Constrain only the decorative bg, never the body itself — body
+           overflow:hidden breaks Bootstrap modal scroll lock & padding. */
         .wa-bg { background: radial-gradient(circle at 20% 0%, rgba(37,211,102,.12), transparent 40%),
                           radial-gradient(circle at 80% 100%, rgba(18,140,126,.12), transparent 40%); }
         /* Decorative floating WhatsApp glyphs — pure CSS, no extra assets. */
-        .wa-bg-deco { position:fixed; inset:0; pointer-events:none; overflow:hidden; z-index:0; }
+        .wa-bg-deco { position:fixed; inset:0; pointer-events:none; overflow:hidden; z-index:0; isolation:isolate; }
         .wa-bg-deco i { position:absolute; font-family:'Font Awesome 6 Brands','Font Awesome 6 Free'; opacity:.06; color:var(--wa-deep); animation: wa-float 18s ease-in-out infinite; }
         .wa-bg-deco i:nth-child(1){ top:10%;  left:8%;  font-size:6rem;  animation-delay:-2s; }
         .wa-bg-deco i:nth-child(2){ top:65%;  left:12%; font-size:4rem;  animation-delay:-7s; }
@@ -121,6 +123,10 @@
         </a>
     @endif
 </footer>
+
+{{-- Modals are mounted here, outside <main>, so Bootstrap controls
+     the backdrop & focus trap without z-index fights. --}}
+@stack('modals')
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>

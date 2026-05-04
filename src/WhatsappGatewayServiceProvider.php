@@ -3,6 +3,7 @@
 namespace Almarwa\WhatsappGateway;
 
 use Almarwa\WhatsappGateway\Manager\WhatsappGatewayManager;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
@@ -35,6 +36,17 @@ class WhatsappGatewayServiceProvider extends ServiceProvider
         if (config('whatsapp-gateway.storage.enabled', true)) {
             $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
         }
+
+        // Register the package's class-based components under the
+        // `whatsapp-gateway::` namespace so they can be used as
+        // <x-whatsapp-gateway::promo-banner /> and
+        // <x-whatsapp-gateway::announcement-banner />.
+        // (Laravel 8's loadViewComponentsAs joins the prefix with "-" instead
+        //  of "::", so we use componentNamespace here for the right syntax.)
+        Blade::componentNamespace(
+            'Almarwa\\WhatsappGateway\\View\\Components',
+            'whatsapp-gateway'
+        );
 
         $this->registerRoutes();
 
