@@ -19,6 +19,18 @@ return [
 
     'form_title'         => 'Register for your free WhatsApp session',
     'form_subtitle'      => 'A new gateway instance will be linked to your project.',
+    'one_step_left'      => 'Just one step left to connect',
+
+    'features_modal_title' => 'Service features',
+    'auto_send_title'      => 'Automatic sending',
+    'auto_send_welcome'    => 'Welcome messages for new customers',
+    'auto_send_appointments' => 'Reminders / cancellations / new appointments',
+    'auto_send_invoices'   => 'Invoice notifications',
+    'direct_contact_title' => 'Direct chat',
+    'direct_contact_desc'  => 'Real-time conversations with your customers',
+    'modal_close'          => 'Close',
+    'submitting_title'     => 'Submitting your data and pairing your session…',
+    'submitting_subtitle'  => 'Please wait, do not close this page.',
     'your_info'          => 'Your details',
     'name'               => 'Full name',
     'phone'              => 'Phone number',

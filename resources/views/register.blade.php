@@ -19,7 +19,10 @@
             <div class="text-center mb-4">
                 <i class="fa-brands fa-whatsapp text-success" style="font-size:3rem"></i>
                 <h3 class="fw-bold mt-2">{{ __('whatsapp-gateway::messages.form_title') }}</h3>
-                <p class="text-muted">{{ __('whatsapp-gateway::messages.form_subtitle') }}</p>
+                <p class="text-muted mb-2">{{ __('whatsapp-gateway::messages.form_subtitle') }}</p>
+                <span class="badge rounded-pill bg-success-subtle text-success-emphasis fs-6 px-3 py-2">
+                    <i class="fa-solid fa-bolt"></i> {{ __('whatsapp-gateway::messages.one_step_left') }}
+                </span>
             </div>
 
             @if ($errors->any())
@@ -32,7 +35,7 @@
                 </div>
             @endif
 
-            <form method="POST" action="{{ route('whatsapp-gateway.register') }}" novalidate>
+            <form method="POST" action="{{ route('whatsapp-gateway.register') }}" novalidate class="wa-submit-loader">
                 @csrf
                 <input type="hidden" name="package" value="{{ $free->id ?? 'free' }}">
 

@@ -19,6 +19,19 @@ return [
 
     'form_title'         => 'سجّل بياناتك للاشتراك المجاني',
     'form_subtitle'      => 'سيتم إنشاء جلسة واتساب جديدة لك على المنصة.',
+    'one_step_left'      => 'تبقّت خطوة واحدة للربط',
+
+    // Features modal
+    'features_modal_title' => 'مميزات الخدمة',
+    'auto_send_title'      => 'إرسال تلقائي',
+    'auto_send_welcome'    => 'ترحيب بالعملاء الجدد',
+    'auto_send_appointments' => 'تذكير / إلغاء / إنشاء المواعيد',
+    'auto_send_invoices'   => 'إرسال الفواتير',
+    'direct_contact_title' => 'تواصل مباشر',
+    'direct_contact_desc'  => 'محادثة فورية مع عملائك من نفس النظام',
+    'modal_close'          => 'إغلاق',
+    'submitting_title'     => 'جاري إرسال البيانات وربط جلستك…',
+    'submitting_subtitle'  => 'يرجى الانتظار، لا تغلق الصفحة.',
     'your_info'          => 'بياناتك',
     'name'               => 'الاسم الكامل',
     'phone'              => 'رقم الجوال',
