@@ -29,8 +29,10 @@
                 <p class="text-muted mb-4">{{ __('whatsapp-gateway::messages.connect_subtitle') }}</p>
                 <div class="qr-frame mb-3">
                     <div id="wa-qr-placeholder" class="d-flex flex-column align-items-center justify-content-center text-muted"
-                         style="width:280px; height:280px; gap:.75rem;">
-                        <div class="spinner-border text-success" role="status"></div>
+                         style="width:280px; height:280px; gap:1rem;">
+                        <div class="wa-dots" aria-hidden="true">
+                            <span></span><span></span><span></span>
+                        </div>
                         <small id="wa-prep-msg" class="px-3 small">{{ __('whatsapp-gateway::messages.preparing_session') }}</small>
                     </div>
                     <img id="wa-qr-img" alt="QR" style="display:none">

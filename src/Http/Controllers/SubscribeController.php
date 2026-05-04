@@ -175,11 +175,20 @@ class SubscribeController extends Controller
         }
 
         if (empty($sub->instance_id) || empty($sub->token)) {
+            // Diagnose why we're still without creds so the customer sees
+            // a useful message instead of an endless spinner. Most likely:
+            // c-wts.com has no public register endpoint AND no fallback
+            // credentials are configured.
+            $hasFallback = (bool) $this->gateway->fallbackCredentials();
+            $message = $hasFallback
+                ? __('whatsapp-gateway::messages.provision_pending')
+                : __('whatsapp-gateway::messages.provision_unavailable');
+
             return response()->json([
                 'ok'     => true,
                 'status' => ['state' => 'pending'],
                 'sub'    => ['instance_id' => null, 'expires_at' => null],
-                'qr_error' => __('whatsapp-gateway::messages.provision_pending'),
+                'qr_error' => $message,
             ]);
         }
 

@@ -30,6 +30,12 @@
         .qr-frame img { display:block; max-width:280px; width:100%; height:auto; }
         .pulse-dot { width:.6rem; height:.6rem; border-radius:50%; background:var(--wa-green); display:inline-block; box-shadow:0 0 0 0 rgba(37,211,102,.7); animation: wapulse 1.5s infinite; }
         @keyframes wapulse { 0%{box-shadow:0 0 0 0 rgba(37,211,102,.7);} 70%{box-shadow:0 0 0 12px rgba(37,211,102,0);} 100%{box-shadow:0 0 0 0 rgba(37,211,102,0);} }
+        /* Lightweight three-dot loader, no background, no borders */
+        .wa-dots { display:inline-flex; gap:.45rem; align-items:center; padding:.5rem 0; }
+        .wa-dots span { width:.6rem; height:.6rem; border-radius:50%; background:var(--wa-green); animation: wa-bounce 1.2s infinite ease-in-out both; }
+        .wa-dots span:nth-child(2){ animation-delay:.15s; }
+        .wa-dots span:nth-child(3){ animation-delay:.3s; }
+        @keyframes wa-bounce { 0%,80%,100%{ transform:scale(.4); opacity:.4; } 40%{ transform:scale(1); opacity:1; } }
         .check-list li { padding:.35rem 0; }
         .check-list i { color:var(--wa-green); }
         .stat-pill { background:#fff; border-radius:1rem; padding:1rem 1.25rem; box-shadow:0 4px 14px rgba(0,0,0,.05); }

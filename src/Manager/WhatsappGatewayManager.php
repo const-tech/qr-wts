@@ -107,27 +107,39 @@ class WhatsappGatewayManager
     /* ------------------------------------------------------------------ */
 
     /**
-     * Auto-provision flow — create a brand-new instance on the remote
-     * gateway. Calls the configured register endpoint with whatever
-     * credentials are available (admin_token is optional).
+     * Auto-provision flow — give the customer a usable WhatsApp session.
      *
-     * If auto-provisioning fails AND fallback_credentials are configured,
-     * the customer is silently attached to those credentials so the QR
-     * pairing screen still loads. This lets a host project share its
-     * own admin instance for demo / single-tenant deployments.
+     * Resolution order (first one that succeeds wins):
+     *   1. Explicit reseller register endpoint, if configured.
+     *   2. Fallback (shared admin) credentials, if configured. This is the
+     *      fastest path to a visible QR for projects that don't have a
+     *      reseller agreement with the remote gateway.
+     *   3. Auto-discovery — try a list of well-known register paths.
      */
     public function register(RegisterPayload $payload): WaSubscription
     {
-        try {
-            $remote = $this->driver()->register($payload);
-            return WaSubscription::recordRemote($remote, $payload);
-        } catch (\Throwable $e) {
-            $fallback = $this->fallbackCredentials();
-            if ($fallback) {
-                return $this->claim($payload, $fallback['instance_id'], $fallback['access_token']);
+        $cwts = $this->config['drivers']['cwts'] ?? [];
+        $configuredEndpoint = $cwts['endpoints']['register'] ?? null;
+
+        // 1. Explicit reseller endpoint
+        if ($configuredEndpoint) {
+            try {
+                $remote = $this->driver()->register($payload);
+                return WaSubscription::recordRemote($remote, $payload);
+            } catch (\Throwable $e) {
+                // fall through
             }
-            throw $e;
         }
+
+        // 2. Fallback (shared admin) credentials
+        $fallback = $this->fallbackCredentials();
+        if ($fallback) {
+            return $this->claim($payload, $fallback['instance_id'], $fallback['access_token']);
+        }
+
+        // 3. Auto-discovery (CwtsDriver tries several common paths)
+        $remote = $this->driver()->register($payload);
+        return WaSubscription::recordRemote($remote, $payload);
     }
 
     /**

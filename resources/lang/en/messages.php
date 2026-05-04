@@ -65,6 +65,7 @@ return [
     'provision_pending'  => 'Provisioning your session… the pairing code will appear shortly.',
     'preparing_session'  => 'Preparing your session…',
     'preparing_long'     => 'This is taking longer than usual. If the delay continues, please contact support:',
+    'provision_unavailable' => 'WhatsApp gateway credentials are not configured in the admin panel. Please contact support to finish activation.',
 
     'expired_title'      => 'Your free plan has expired',
     'expired_subtitle'   => 'Upgrade to keep sending, or restart the session later.',
