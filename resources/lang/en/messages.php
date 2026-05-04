@@ -45,6 +45,7 @@ return [
     'connected_subtitle' => 'Your free plan is active. Session credentials were saved automatically in your app.',
     'success_title'      => '🎉 Congratulations! Everything is set up',
     'success_message'    => 'WhatsApp is linked to your number and the key was saved automatically.',
+    'welcome_back'       => 'Welcome back! Your account already exists — your session has been refreshed.',
 
     'attach_title'       => 'We need your gateway credentials',
     'attach_subtitle'    => 'We could not provision a session automatically. Open your account on :brand and paste your instance ID and access token here.',

@@ -16,6 +16,13 @@
 
         <div class="wa-card bg-white p-4 p-md-5">
 
+            @if (session('status'))
+                <div class="alert alert-success border-0 d-flex align-items-center gap-2">
+                    <i class="fa-solid fa-circle-check fs-4"></i>
+                    <span>{{ session('status') }}</span>
+                </div>
+            @endif
+
             @if ($errors->any())
                 <div class="alert alert-danger">
                     <ul class="mb-0">

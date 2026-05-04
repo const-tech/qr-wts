@@ -78,6 +78,25 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Fallback credentials
+    |--------------------------------------------------------------------------
+    |
+    | When auto-provisioning fails (e.g. the remote gateway has no public
+    | register endpoint yet) the package will reuse these credentials so
+    | the customer still lands on the QR pairing screen instead of being
+    | asked to paste credentials manually.
+    |
+    | Either set the env vars directly, or feed them dynamically from the
+    | host project (e.g. inside AppServiceProvider::boot — see README).
+    |
+    */
+    'fallback_credentials' => [
+        'instance_id'  => env('WHATSAPP_GATEWAY_DEFAULT_INSTANCE_ID'),
+        'access_token' => env('WHATSAPP_GATEWAY_DEFAULT_ACCESS_TOKEN'),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Routes
     |--------------------------------------------------------------------------
     */

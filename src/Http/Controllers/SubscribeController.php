@@ -80,20 +80,48 @@ class SubscribeController extends Controller
             app()->getLocale()
         );
 
+        // Dedupe — if a customer with the same phone already registered,
+        // just refresh their session and redirect them to their existing
+        // QR / connect screen instead of creating a duplicate row.
+        $existing = WaSubscription::where('phone', $payload->phone)->latest()->first();
+        if ($existing) {
+            $existing->fill([
+                'name'       => $payload->name,
+                'email'      => $payload->email     ?: $existing->email,
+                'business'   => $payload->business  ?: $existing->business,
+                'package_id' => $payload->packageId ?: $existing->package_id,
+            ]);
+
+            // If we have fallback creds and the existing record has none, attach them
+            if (empty($existing->instance_id) || empty($existing->token)) {
+                $fallback = $this->gateway->fallbackCredentials();
+                if ($fallback) {
+                    $existing->instance_id = $fallback['instance_id'];
+                    $existing->token       = $fallback['access_token'];
+                }
+            }
+            $existing->save();
+
+            return redirect()
+                ->route('whatsapp-gateway.connect', ['token' => $existing->local_token])
+                ->with('status', __('whatsapp-gateway::messages.welcome_back'));
+        }
+
         try {
             if (! $this->gateway->isResellerFlow()) {
                 $sub = $this->gateway->claim($payload, $data['instance_id'], $data['access_token']);
             } else {
                 try {
+                    // Manager::register() already falls through to fallback
+                    // credentials when the remote gateway has no register
+                    // endpoint, so the QR screen always loads.
                     $sub = $this->gateway->register($payload);
                 } catch (Throwable $e) {
-                    // Auto-provision failed (gateway down, endpoint not yet
-                    // exposed publicly, etc). Don't block the customer —
-                    // create a placeholder subscription so they reach the
-                    // QR screen and can re-pair from there.
-                    Log::warning('whatsapp-gateway: auto-provision failed', [
+                    Log::warning('whatsapp-gateway: auto-provision failed (no fallback)', [
                         'error' => $e->getMessage(),
                     ]);
+                    // Last resort — create a placeholder; the QR page will
+                    // surface the inline claim form.
                     $sub = WaSubscription::recordRemote(
                         SubscriptionData::fromArray([
                             'instance_id' => '',
@@ -186,19 +214,21 @@ class SubscribeController extends Controller
 
     /**
      * Re-attempt auto-provision for a subscription that doesn't yet have
-     * remote credentials. Silent on failure.
+     * remote credentials. Silent on failure. Falls back to configured
+     * credentials so the QR screen never gets stuck.
      */
     protected function tryAutoProvision(WaSubscription $sub): void
     {
+        $payload = new RegisterPayload(
+            $sub->name,
+            $sub->phone,
+            $sub->email,
+            $sub->business,
+            $sub->package_id,
+            app()->getLocale()
+        );
+
         try {
-            $payload = new RegisterPayload(
-                $sub->name,
-                $sub->phone,
-                $sub->email,
-                $sub->business,
-                $sub->package_id,
-                app()->getLocale()
-            );
             $remote = $this->gateway->driver()->register($payload);
             $sub->instance_id = $remote->instanceId;
             $sub->token       = $remote->token;
@@ -208,8 +238,16 @@ class SubscribeController extends Controller
                 $sub->expires_at = $remote->expiresAt;
             }
             $sub->save();
+            return;
         } catch (Throwable $e) {
             Log::debug('whatsapp-gateway: poll auto-provision retry failed', ['error' => $e->getMessage()]);
+        }
+
+        $fallback = $this->gateway->fallbackCredentials();
+        if ($fallback) {
+            $sub->instance_id = $fallback['instance_id'];
+            $sub->token       = $fallback['access_token'];
+            $sub->save();
         }
     }
 

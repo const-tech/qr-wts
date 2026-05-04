@@ -110,11 +110,54 @@ class WhatsappGatewayManager
      * Auto-provision flow — create a brand-new instance on the remote
      * gateway. Calls the configured register endpoint with whatever
      * credentials are available (admin_token is optional).
+     *
+     * If auto-provisioning fails AND fallback_credentials are configured,
+     * the customer is silently attached to those credentials so the QR
+     * pairing screen still loads. This lets a host project share its
+     * own admin instance for demo / single-tenant deployments.
      */
     public function register(RegisterPayload $payload): WaSubscription
     {
-        $remote = $this->driver()->register($payload);
-        return WaSubscription::recordRemote($remote, $payload);
+        try {
+            $remote = $this->driver()->register($payload);
+            return WaSubscription::recordRemote($remote, $payload);
+        } catch (\Throwable $e) {
+            $fallback = $this->fallbackCredentials();
+            if ($fallback) {
+                return $this->claim($payload, $fallback['instance_id'], $fallback['access_token']);
+            }
+            throw $e;
+        }
+    }
+
+    /**
+     * @return array{instance_id:string,access_token:string}|null
+     */
+    public function fallbackCredentials(): ?array
+    {
+        // Read live config so host projects can set values at runtime
+        // (e.g. AppServiceProvider::boot reading from a settings table).
+        $live = function_exists('config')
+            ? config('whatsapp-gateway.fallback_credentials')
+            : null;
+        $f = $live ?: ($this->config['fallback_credentials'] ?? null);
+
+        if (! $f || empty($f['instance_id']) || empty($f['access_token'])) {
+            return null;
+        }
+        return [
+            'instance_id'  => (string) $f['instance_id'],
+            'access_token' => (string) $f['access_token'],
+        ];
+    }
+
+    /** Allow host projects to set credentials at runtime. */
+    public function setFallbackCredentials(?string $instanceId, ?string $accessToken): void
+    {
+        $this->config['fallback_credentials'] = [
+            'instance_id'  => $instanceId,
+            'access_token' => $accessToken,
+        ];
     }
 
     /**
