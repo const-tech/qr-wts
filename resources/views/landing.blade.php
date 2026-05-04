@@ -37,6 +37,7 @@
                 <a href="{{ route('whatsapp-gateway.register.show') }}"
                    class="btn btn-warning btn-lg fw-bold text-dark shadow-sm px-4">
                     <i class="fa-solid fa-rocket"></i> {{ __('whatsapp-gateway::messages.cta_start_free') }}
+                    <i class="fa-solid fa-arrow-{{ app()->getLocale() === 'ar' ? 'left' : 'right' }} ms-1"></i>
                 </a>
                 <a href="#packages" class="btn btn-outline-light btn-lg">
                     <i class="fa-solid fa-circle-info"></i> {{ __('whatsapp-gateway::messages.features') }}
@@ -89,4 +90,16 @@
         @endforeach
     </div>
 @endif
+
+<div class="nav-actions">
+    <a href="{{ config('whatsapp-gateway.branding.home_url') ?? url('/') }}"
+       class="btn btn-outline-secondary">
+        <i class="fa-solid fa-arrow-{{ app()->getLocale() === 'ar' ? 'right' : 'left' }}"></i>
+        {{ __('whatsapp-gateway::messages.go_to_program') }}
+    </a>
+    <a href="{{ route('whatsapp-gateway.register.show') }}" class="btn btn-success">
+        {{ __('whatsapp-gateway::messages.cta_continue') }}
+        <i class="fa-solid fa-arrow-{{ app()->getLocale() === 'ar' ? 'left' : 'right' }}"></i>
+    </a>
+</div>
 @endsection

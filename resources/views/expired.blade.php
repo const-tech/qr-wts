@@ -43,7 +43,8 @@
             <div class="d-flex justify-content-center gap-2 flex-wrap">
                 @if (!empty($loginUrl))
                     <a href="{{ $loginUrl }}" target="_blank" rel="noopener" class="btn btn-warning btn-lg fw-bold text-dark">
-                        <i class="fa-solid fa-external-link-alt"></i> {{ __('whatsapp-gateway::messages.open_cwts_login') }}
+                        <i class="fa-solid fa-external-link-alt"></i>
+                        {{ __('whatsapp-gateway::messages.open_dashboard', ['brand' => __('whatsapp-gateway::messages.gateway_brand')]) }}
                     </a>
                 @endif
                 <form method="POST" action="{{ route('whatsapp-gateway.restart', $sub->local_token) }}">
@@ -53,7 +54,7 @@
                     </button>
                 </form>
                 <a href="{{ config('whatsapp-gateway.branding.home_url') ?? url('/') }}" class="btn btn-success btn-lg">
-                    <i class="fa-solid fa-arrow-right"></i> {{ __('whatsapp-gateway::messages.go_to_site') }}
+                    <i class="fa-solid fa-arrow-right"></i> {{ __('whatsapp-gateway::messages.go_to_program') }}
                 </a>
             </div>
         </div>

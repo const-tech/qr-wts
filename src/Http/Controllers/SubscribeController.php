@@ -4,11 +4,13 @@ namespace Almarwa\WhatsappGateway\Http\Controllers;
 
 use Almarwa\WhatsappGateway\DTOs\RegisterPayload;
 use Almarwa\WhatsappGateway\DTOs\StatusData;
+use Almarwa\WhatsappGateway\DTOs\SubscriptionData;
 use Almarwa\WhatsappGateway\Manager\WhatsappGatewayManager;
 use Almarwa\WhatsappGateway\Models\WaSubscription;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Throwable;
 
@@ -79,9 +81,30 @@ class SubscribeController extends Controller
         );
 
         try {
-            $sub = $this->gateway->isResellerFlow()
-                ? $this->gateway->register($payload)
-                : $this->gateway->claim($payload, $data['instance_id'], $data['access_token']);
+            if (! $this->gateway->isResellerFlow()) {
+                $sub = $this->gateway->claim($payload, $data['instance_id'], $data['access_token']);
+            } else {
+                try {
+                    $sub = $this->gateway->register($payload);
+                } catch (Throwable $e) {
+                    // Auto-provision failed (gateway down, endpoint not yet
+                    // exposed publicly, etc). Don't block the customer —
+                    // create a placeholder subscription so they reach the
+                    // QR screen and can re-pair from there.
+                    Log::warning('whatsapp-gateway: auto-provision failed', [
+                        'error' => $e->getMessage(),
+                    ]);
+                    $sub = WaSubscription::recordRemote(
+                        SubscriptionData::fromArray([
+                            'instance_id' => '',
+                            'token'       => '',
+                            'package_id'  => $payload->packageId ?: 'free',
+                            'status'      => 'pending',
+                        ]),
+                        $payload
+                    );
+                }
+            }
         } catch (Throwable $e) {
             return back()
                 ->withInput()
@@ -115,6 +138,21 @@ class SubscribeController extends Controller
     {
         $sub = $this->resolve($token);
 
+        // If we don't have credentials yet (auto-provision failed earlier),
+        // try once more so the QR screen "self-heals" instead of erroring.
+        if (empty($sub->instance_id) || empty($sub->token)) {
+            $this->tryAutoProvision($sub);
+        }
+
+        if (empty($sub->instance_id) || empty($sub->token)) {
+            return response()->json([
+                'ok'     => true,
+                'status' => ['state' => 'pending'],
+                'sub'    => ['instance_id' => null, 'expires_at' => null],
+                'qr_error' => __('whatsapp-gateway::messages.provision_pending'),
+            ]);
+        }
+
         try {
             $status = $this->gateway->status($sub);
         } catch (Throwable $e) {
@@ -142,6 +180,35 @@ class SubscribeController extends Controller
         }
 
         return response()->json($payload);
+    }
+
+    /**
+     * Re-attempt auto-provision for a subscription that doesn't yet have
+     * remote credentials. Silent on failure.
+     */
+    protected function tryAutoProvision(WaSubscription $sub): void
+    {
+        try {
+            $payload = new RegisterPayload(
+                $sub->name,
+                $sub->phone,
+                $sub->email,
+                $sub->business,
+                $sub->package_id,
+                app()->getLocale()
+            );
+            $remote = $this->gateway->driver()->register($payload);
+            $sub->instance_id = $remote->instanceId;
+            $sub->token       = $remote->token;
+            $sub->remote_id   = $remote->remoteId;
+            $sub->status      = $remote->status ?: 'pending';
+            if ($remote->expiresAt) {
+                $sub->expires_at = $remote->expiresAt;
+            }
+            $sub->save();
+        } catch (Throwable $e) {
+            Log::debug('whatsapp-gateway: poll auto-provision retry failed', ['error' => $e->getMessage()]);
+        }
     }
 
     /**

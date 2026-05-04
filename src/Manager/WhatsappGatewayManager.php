@@ -107,24 +107,12 @@ class WhatsappGatewayManager
     /* ------------------------------------------------------------------ */
 
     /**
-     * Reseller flow — create a brand-new instance via the private API.
+     * Auto-provision flow — create a brand-new instance on the remote
+     * gateway. Calls the configured register endpoint with whatever
+     * credentials are available (admin_token is optional).
      */
     public function register(RegisterPayload $payload): WaSubscription
     {
-        if (! $this->isResellerFlow()) {
-            throw new GatewayException(
-                'register() requires the reseller flow. Set whatsapp-gateway.flow=reseller ' .
-                'and configure WHATSAPP_GATEWAY_REGISTER_ENDPOINT + WHATSAPP_GATEWAY_ADMIN_TOKEN.'
-            );
-        }
-
-        $cwts = $this->config['drivers']['cwts'] ?? [];
-        if (empty($cwts['admin_token']) || empty($cwts['endpoints']['register'])) {
-            throw new GatewayException(
-                'إعدادات الريسلر ناقصة: ضع WHATSAPP_GATEWAY_ADMIN_TOKEN و WHATSAPP_GATEWAY_REGISTER_ENDPOINT في .env (أو حوّل WHATSAPP_GATEWAY_FLOW=claim مؤقتاً).'
-            );
-        }
-
         $remote = $this->driver()->register($payload);
         return WaSubscription::recordRemote($remote, $payload);
     }

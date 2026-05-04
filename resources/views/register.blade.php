@@ -1,5 +1,10 @@
 @extends('whatsapp-gateway::layout')
 
+@php
+    $brand    = __('whatsapp-gateway::messages.gateway_brand');
+    $termsUrl = config('whatsapp-gateway.branding.terms_url');
+@endphp
+
 @section('content')
 <div class="row justify-content-center">
     <div class="col-12 col-lg-8">
@@ -65,13 +70,13 @@
                 </div>
 
                 @if ($claimMode)
-                    {{-- Fallback claim mode — only shown if the project is not configured for reseller flow. --}}
+                    {{-- Fallback claim mode — only shown when reseller flow is disabled. --}}
                     <hr class="my-4">
                     <h6 class="fw-bold text-muted small">
                         <i class="fa-solid fa-key text-success"></i>
-                        {{ __('whatsapp-gateway::messages.claim_step2_title') }}
+                        {{ __('whatsapp-gateway::messages.claim_step2_title', ['brand' => $brand]) }}
                     </h6>
-                    <p class="text-muted small">{{ __('whatsapp-gateway::messages.claim_step2_subtitle') }}</p>
+                    <p class="text-muted small">{{ __('whatsapp-gateway::messages.claim_step2_subtitle', ['brand' => $brand]) }}</p>
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label class="form-label">{{ __('whatsapp-gateway::messages.instance_id') }}</label>
@@ -94,13 +99,22 @@
 
                 <div class="form-check mt-4">
                     <input type="checkbox" required class="form-check-input" id="agree">
-                    <label class="form-check-label" for="agree">{{ __('whatsapp-gateway::messages.agree_terms') }}</label>
+                    <label class="form-check-label" for="agree">
+                        {!! __('whatsapp-gateway::messages.agree_terms_html', ['url' => $termsUrl]) !!}
+                    </label>
                 </div>
 
-                <button type="submit" class="btn btn-success btn-lg w-100 mt-4 fw-bold">
-                    <i class="fa-solid fa-rocket"></i>
-                    {{ __('whatsapp-gateway::messages.submit_register') }}
-                </button>
+                <div class="nav-actions">
+                    <a href="{{ route('whatsapp-gateway.landing') }}" class="btn btn-outline-secondary btn-lg">
+                        <i class="fa-solid fa-arrow-{{ app()->getLocale() === 'ar' ? 'right' : 'left' }}"></i>
+                        {{ __('whatsapp-gateway::messages.cta_back') }}
+                    </a>
+                    <button type="submit" class="btn btn-success btn-lg fw-bold flex-grow-1">
+                        <i class="fa-solid fa-rocket"></i>
+                        {{ __('whatsapp-gateway::messages.submit_register') }}
+                        <i class="fa-solid fa-arrow-{{ app()->getLocale() === 'ar' ? 'left' : 'right' }} ms-1"></i>
+                    </button>
+                </div>
 
                 <p class="text-center text-muted small mt-3 mb-0">
                     <i class="fa-solid fa-lock"></i>

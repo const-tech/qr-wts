@@ -91,15 +91,13 @@ class CwtsDriver implements GatewayDriver
 
     public function register(RegisterPayload $payload): SubscriptionData
     {
-        $path = $this->config['endpoints']['register'] ?? null;
-        if (! $path) {
-            throw new GatewayException(
-                'Reseller register endpoint is not configured. Use the claim flow ' .
-                '(set whatsapp-gateway.flow=claim) or set WHATSAPP_GATEWAY_REGISTER_ENDPOINT.'
-            );
-        }
+        $path = $this->config['endpoints']['register'] ?? '/api/register';
 
-        $response = $this->withAdminToken($this->request())->post($path, $payload->toArray());
+        // admin_token is optional — only attached if configured.
+        $response = $this->withAdminToken($this->asForm())->post(
+            $path,
+            $payload->toArray()
+        );
         $data = $this->unwrap($response, 'subscription');
         return SubscriptionData::fromArray($data);
     }

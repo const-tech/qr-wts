@@ -38,17 +38,15 @@
                     <div class="col-md-6">
                         <div class="stat-pill">
                             <small class="text-muted d-block">{{ __('whatsapp-gateway::messages.instance_id') }}</small>
-                            <code class="fs-6">{{ $sub->instance_id }}</code>
+                            <code class="fs-6" id="wa-instance-id">{{ $sub->instance_id }}</code>
                         </div>
                     </div>
-                    @if ($sub->token)
                     <div class="col-md-6">
                         <div class="stat-pill">
                             <small class="text-muted d-block">{{ __('whatsapp-gateway::messages.token') }}</small>
-                            <code class="fs-6 text-truncate d-inline-block" style="max-width:100%;">{{ $sub->token }}</code>
+                            <code class="fs-6 text-truncate d-inline-block" style="max-width:100%;" id="wa-token">{{ $sub->token }}</code>
                         </div>
                     </div>
-                    @endif
                     @if ($sub->expires_at)
                     <div class="col-md-12">
                         <div class="stat-pill">
@@ -58,14 +56,21 @@
                     </div>
                     @endif
                 </div>
+            </div>
 
-                <div class="d-flex justify-content-center gap-2 flex-wrap">
+            <div class="nav-actions">
+                <a href="{{ route('whatsapp-gateway.register.show') }}" class="btn btn-outline-secondary">
+                    <i class="fa-solid fa-arrow-{{ app()->getLocale() === 'ar' ? 'right' : 'left' }}"></i>
+                    {{ __('whatsapp-gateway::messages.cta_back') }}
+                </a>
+                <div class="d-flex gap-2 flex-wrap">
                     <form method="POST" action="{{ route('whatsapp-gateway.restart', $sub->local_token) }}">
                         @csrf
                         <button class="btn btn-outline-secondary"><i class="fa-solid fa-rotate"></i> {{ __('whatsapp-gateway::messages.restart_session') }}</button>
                     </form>
                     <a href="{{ config('whatsapp-gateway.branding.home_url') ?? url('/') }}" class="btn btn-success">
-                        <i class="fa-solid fa-arrow-right"></i> {{ __('whatsapp-gateway::messages.go_to_site') }}
+                        <i class="fa-solid fa-arrow-{{ app()->getLocale() === 'ar' ? 'left' : 'right' }}"></i>
+                        {{ __('whatsapp-gateway::messages.go_to_program') }}
                     </a>
                 </div>
             </div>
@@ -87,6 +92,8 @@
     const $pending   = document.getElementById('wa-pending');
     const $connected = document.getElementById('wa-connected');
     const $statusLbl = document.getElementById('wa-status-label');
+    const $instId    = document.getElementById('wa-instance-id');
+    const $tokenEl   = document.getElementById('wa-token');
 
     let stopped = false;
 
@@ -98,6 +105,12 @@
             if (!json.ok) throw new Error(json.error || 'gateway error');
 
             const state = json.status.state;
+
+            // Update credentials in the DOM as they become available — the
+            // poll endpoint auto-saves them server-side, we just reflect.
+            if (json.sub && json.sub.instance_id && $instId) {
+                $instId.textContent = json.sub.instance_id;
+            }
 
             if (state === 'connected') {
                 stopped = true;

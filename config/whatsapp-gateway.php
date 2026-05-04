@@ -106,8 +106,11 @@ return [
     */
     'branding' => [
         'app_name'      => env('APP_NAME', 'Al Marwa'),
+        'platform_name' => env('WHATSAPP_GATEWAY_PLATFORM_NAME'),  // null → fallback to lang file
+        'platform_logo' => env('WHATSAPP_GATEWAY_PLATFORM_LOGO'),
         'support_phone' => env('WHATSAPP_GATEWAY_SUPPORT_PHONE', '0506499275'),
         'home_url'      => env('WHATSAPP_GATEWAY_HOME_URL'),
+        'terms_url'     => env('WHATSAPP_GATEWAY_TERMS_URL', 'https://c-wts.com/terms'),
         'logo'          => env('WHATSAPP_GATEWAY_LOGO'),
     ],
 
