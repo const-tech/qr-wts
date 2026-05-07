@@ -1,15 +1,15 @@
 <?php
 
-namespace Almarwa\WhatsappGateway\Manager;
+namespace ConstTech\WhatsappGateway\Manager;
 
-use Almarwa\WhatsappGateway\Contracts\GatewayDriver;
-use Almarwa\WhatsappGateway\DTOs\PackageData;
-use Almarwa\WhatsappGateway\DTOs\QrData;
-use Almarwa\WhatsappGateway\DTOs\RegisterPayload;
-use Almarwa\WhatsappGateway\DTOs\StatusData;
-use Almarwa\WhatsappGateway\DTOs\SubscriptionData;
-use Almarwa\WhatsappGateway\Exceptions\GatewayException;
-use Almarwa\WhatsappGateway\Models\WaSubscription;
+use ConstTech\WhatsappGateway\Contracts\GatewayDriver;
+use ConstTech\WhatsappGateway\DTOs\PackageData;
+use ConstTech\WhatsappGateway\DTOs\QrData;
+use ConstTech\WhatsappGateway\DTOs\RegisterPayload;
+use ConstTech\WhatsappGateway\DTOs\StatusData;
+use ConstTech\WhatsappGateway\DTOs\SubscriptionData;
+use ConstTech\WhatsappGateway\Exceptions\GatewayException;
+use ConstTech\WhatsappGateway\Models\WaSubscription;
 use Illuminate\Contracts\Container\Container;
 
 /**

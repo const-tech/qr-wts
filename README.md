@@ -1,4 +1,4 @@
-# almarwa/whatsapp-gateway
+# const-tech/whatsapp-gateway
 
 Reusable Laravel package that provides:
 
@@ -53,20 +53,20 @@ In the host project's `composer.json`:
     "repositories": [
         {
             "type": "path",
-            "url": "packages/almarwa/whatsapp-gateway",
+            "url": "packages/const-tech/whatsapp-gateway",
             "options": { "symlink": true }
         }
     ],
     "require": {
-        "almarwa/whatsapp-gateway": "*"
+        "const-tech/whatsapp-gateway": "*"
     }
 }
 ```
 
-Drop the package folder under `packages/almarwa/whatsapp-gateway`, then:
+Drop the package folder under `packages/const-tech/whatsapp-gateway`, then:
 
 ```bash
-composer require almarwa/whatsapp-gateway:*
+composer require const-tech/whatsapp-gateway:*
 php artisan migrate
 ```
 
@@ -131,8 +131,8 @@ Disable auto-routes:
 ## 5. Programmatic API
 
 ```php
-use Almarwa\WhatsappGateway\Facades\WhatsappGateway;
-use Almarwa\WhatsappGateway\DTOs\RegisterPayload;
+use ConstTech\WhatsappGateway\Facades\WhatsappGateway;
+use ConstTech\WhatsappGateway\DTOs\RegisterPayload;
 
 // claim flow — verify pasted credentials and store
 $payload = new RegisterPayload(
@@ -183,11 +183,11 @@ edits required.
 
 | Driver | Class                                        | Purpose            |
 | ------ | -------------------------------------------- | ------------------ |
-| `cwts` | `Almarwa\WhatsappGateway\Drivers\CwtsDriver` | Real REST gateway  |
-| `null` | `Almarwa\WhatsappGateway\Drivers\NullDriver` | Tests / local dev  |
+| `cwts` | `ConstTech\WhatsappGateway\Drivers\CwtsDriver` | Real REST gateway  |
+| `null` | `ConstTech\WhatsappGateway\Drivers\NullDriver` | Tests / local dev  |
 
 To plug in a different gateway (Whapi, Baileys server, etc.) implement
-`Almarwa\WhatsappGateway\Contracts\GatewayDriver` and register it under
+`ConstTech\WhatsappGateway\Contracts\GatewayDriver` and register it under
 `config('whatsapp-gateway.drivers.<name>')`.
 
 ---
@@ -228,9 +228,9 @@ Customize the table name / connection in `config('whatsapp-gateway.storage')`.
 
 For each new project:
 
-1. Copy `packages/almarwa/whatsapp-gateway` → same path in the new repo.
+1. Copy `packages/const-tech/whatsapp-gateway` → same path in the new repo.
 2. Add the path repository + require in the new project's `composer.json`.
-3. `composer require almarwa/whatsapp-gateway:*`
+3. `composer require const-tech/whatsapp-gateway:*`
 4. `php artisan migrate`
 5. Set the env vars.
 

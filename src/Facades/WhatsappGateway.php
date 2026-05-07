@@ -1,17 +1,17 @@
 <?php
 
-namespace Almarwa\WhatsappGateway\Facades;
+namespace ConstTech\WhatsappGateway\Facades;
 
-use Almarwa\WhatsappGateway\DTOs\QrData;
-use Almarwa\WhatsappGateway\DTOs\RegisterPayload;
-use Almarwa\WhatsappGateway\DTOs\StatusData;
-use Almarwa\WhatsappGateway\Models\WaSubscription;
+use ConstTech\WhatsappGateway\DTOs\QrData;
+use ConstTech\WhatsappGateway\DTOs\RegisterPayload;
+use ConstTech\WhatsappGateway\DTOs\StatusData;
+use ConstTech\WhatsappGateway\Models\WaSubscription;
 use Illuminate\Support\Facades\Facade;
 
 /**
- * @method static \Almarwa\WhatsappGateway\Contracts\GatewayDriver driver(?string $name = null)
+ * @method static \ConstTech\WhatsappGateway\Contracts\GatewayDriver driver(?string $name = null)
  * @method static array packages()
- * @method static \Almarwa\WhatsappGateway\DTOs\PackageData|null freePackage()
+ * @method static \ConstTech\WhatsappGateway\DTOs\PackageData|null freePackage()
  * @method static WaSubscription register(RegisterPayload $payload)
  * @method static QrData qr(WaSubscription $sub)
  * @method static StatusData status(WaSubscription $sub, bool $persist = true)

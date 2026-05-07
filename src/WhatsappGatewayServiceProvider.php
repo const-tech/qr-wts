@@ -1,8 +1,8 @@
 <?php
 
-namespace Almarwa\WhatsappGateway;
+namespace ConstTech\WhatsappGateway;
 
-use Almarwa\WhatsappGateway\Manager\WhatsappGatewayManager;
+use ConstTech\WhatsappGateway\Manager\WhatsappGatewayManager;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
@@ -44,7 +44,7 @@ class WhatsappGatewayServiceProvider extends ServiceProvider
         // (Laravel 8's loadViewComponentsAs joins the prefix with "-" instead
         //  of "::", so we use componentNamespace here for the right syntax.)
         Blade::componentNamespace(
-            'Almarwa\\WhatsappGateway\\View\\Components',
+            'ConstTech\\WhatsappGateway\\View\\Components',
             'whatsapp-gateway'
         );
 

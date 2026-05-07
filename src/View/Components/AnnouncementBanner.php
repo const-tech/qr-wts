@@ -1,6 +1,6 @@
 <?php
 
-namespace Almarwa\WhatsappGateway\View\Components;
+namespace ConstTech\WhatsappGateway\View\Components;
 
 use Illuminate\View\Component;
 

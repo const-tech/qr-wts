@@ -1,10 +1,10 @@
 <?php
 
-namespace Almarwa\WhatsappGateway\Models;
+namespace ConstTech\WhatsappGateway\Models;
 
-use Almarwa\WhatsappGateway\DTOs\RegisterPayload;
-use Almarwa\WhatsappGateway\DTOs\StatusData;
-use Almarwa\WhatsappGateway\DTOs\SubscriptionData;
+use ConstTech\WhatsappGateway\DTOs\RegisterPayload;
+use ConstTech\WhatsappGateway\DTOs\StatusData;
+use ConstTech\WhatsappGateway\DTOs\SubscriptionData;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace Almarwa\WhatsappGateway\Exceptions;
+namespace ConstTech\WhatsappGateway\Exceptions;
 
 use Exception;
 use Throwable;

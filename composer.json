@@ -1,11 +1,14 @@
 {
-    "name": "almarwa/whatsapp-gateway",
+    "name": "const-tech/whatsapp-gateway",
     "description": "Reusable WhatsApp Gateway client + self-service subscription flow for Laravel projects (c-wts.com / Ultramsg compatible).",
     "type": "library",
     "license": "MIT",
     "authors": [
         {
-            "name": "Al Marwa"
+            "name": "Const Tech",
+            "email": "info@c-wts.com",
+            "homepage": "http://c-wts.com/",
+            "role": "Developer"
         }
     ],
     "require": {
@@ -17,18 +20,21 @@
     },
     "autoload": {
         "psr-4": {
-            "Almarwa\\WhatsappGateway\\": "src/"
+            "ConstTech\\WhatsappGateway\\": "src/"
         }
     },
     "extra": {
         "laravel": {
             "providers": [
-                "Almarwa\\WhatsappGateway\\WhatsappGatewayServiceProvider"
+                "ConstTech\\WhatsappGateway\\WhatsappGatewayServiceProvider"
             ],
             "aliases": {
-                "WhatsappGateway": "Almarwa\\WhatsappGateway\\Facades\\WhatsappGateway"
+                "WhatsappGateway": "ConstTech\\WhatsappGateway\\Facades\\WhatsappGateway"
             }
         }
+    },
+    "replace": {
+        "almarwa/whatsapp-gateway": "*"
     },
     "minimum-stability": "dev",
     "prefer-stable": true

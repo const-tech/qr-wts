@@ -1,6 +1,6 @@
 <?php
 
-namespace Almarwa\WhatsappGateway\DTOs;
+namespace ConstTech\WhatsappGateway\DTOs;
 
 use Carbon\Carbon;
 use Illuminate\Contracts\Support\Arrayable;

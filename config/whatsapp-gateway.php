@@ -21,7 +21,7 @@ return [
     'drivers' => [
 
         'cwts' => [
-            'class'     => \Almarwa\WhatsappGateway\Drivers\CwtsDriver::class,
+            'class'     => \ConstTech\WhatsappGateway\Drivers\CwtsDriver::class,
             'base_url'  => env('WHATSAPP_GATEWAY_BASE_URL', 'https://c-wts.com'),
             'timeout'   => 30,
             'verify_ssl' => env('WHATSAPP_GATEWAY_VERIFY_SSL', false),
@@ -54,7 +54,7 @@ return [
         ],
 
         'null' => [
-            'class' => \Almarwa\WhatsappGateway\Drivers\NullDriver::class,
+            'class' => \ConstTech\WhatsappGateway\Drivers\NullDriver::class,
         ],
 
     ],

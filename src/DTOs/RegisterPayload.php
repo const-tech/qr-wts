@@ -1,6 +1,6 @@
 <?php
 
-namespace Almarwa\WhatsappGateway\DTOs;
+namespace ConstTech\WhatsappGateway\DTOs;
 
 class RegisterPayload
 {

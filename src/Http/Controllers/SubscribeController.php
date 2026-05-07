@@ -1,12 +1,12 @@
 <?php
 
-namespace Almarwa\WhatsappGateway\Http\Controllers;
+namespace ConstTech\WhatsappGateway\Http\Controllers;
 
-use Almarwa\WhatsappGateway\DTOs\RegisterPayload;
-use Almarwa\WhatsappGateway\DTOs\StatusData;
-use Almarwa\WhatsappGateway\DTOs\SubscriptionData;
-use Almarwa\WhatsappGateway\Manager\WhatsappGatewayManager;
-use Almarwa\WhatsappGateway\Models\WaSubscription;
+use ConstTech\WhatsappGateway\DTOs\RegisterPayload;
+use ConstTech\WhatsappGateway\DTOs\StatusData;
+use ConstTech\WhatsappGateway\DTOs\SubscriptionData;
+use ConstTech\WhatsappGateway\Manager\WhatsappGatewayManager;
+use ConstTech\WhatsappGateway\Models\WaSubscription;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;

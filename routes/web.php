@@ -1,6 +1,6 @@
 <?php
 
-use Almarwa\WhatsappGateway\Http\Controllers\SubscribeController;
+use ConstTech\WhatsappGateway\Http\Controllers\SubscribeController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/',                  [SubscribeController::class, 'landing'])->name('landing');
