@@ -74,10 +74,17 @@ return [
     'token'              => 'مفتاح الإرسال',
     'expires_at'         => 'تنتهي الباقة في',
     'restart_session'    => 'إعادة الجلسة',
-    'restart_unavailable'=> 'إعادة الجلسة تتم من لوحة :brand، يرجى تسجيل الدخول هناك.',
+    'restart_unavailable' => 'إعادة الجلسة تتم من لوحة :brand، يرجى تسجيل الدخول هناك.',
     'go_to_program'      => 'الرجوع للبرنامج',
     'session_restarted'  => 'تمت إعادة تشغيل الجلسة، أعد مسح الكود.',
     'open_dashboard'     => 'فتح لوحة :brand',
+
+    // Confirm step (after registration, before QR)
+    'confirm_title'              => 'تم التسجيل بنجاح — راجع بياناتك',
+    'confirm_subtitle'           => 'تم إنشاء جلستك. راجع المعلومات أدناه ثم انتقل لمسح كود الربط.',
+    'confirm_credentials_title'  => 'بيانات الجلسة المُنشأة',
+    'confirm_cta'                => 'عرض كود الربط',
+    'confirm_note'               => 'تم حفظ بيانات الجلسة تلقائياً في النظام.',
     'provision_pending'  => 'جاري تجهيز جلستك… سيظهر كود الربط خلال لحظات.',
     'preparing_session'  => 'جاري تجهيز جلستك…',
     'preparing_long'     => 'العملية تستغرق وقتاً أطول من المتوقع. لو استمر التأخير، تواصل مع الدعم:',
@@ -89,4 +96,15 @@ return [
     'no_upgrades'        => 'الترقية تتم من لوحة :brand مباشرة.',
 
     'gateway_error'      => 'تعذّر الاتصال ببوابة واتساب',
+
+    // Services page (admin)
+    'our_services'           => 'خدماتنا',
+    'back'                   => 'رجوع',
+    'service'                => 'الخدمة',
+    'service_description'    => 'وصف الخدمة',
+    'request_service'        => 'طلب الخدمة',
+    'no_services'            => 'لا توجد خدمات متاحة.',
+    'services_contact_hint'  => 'في حال رغبتكم في إضافة خدمة، يمكنكم التواصل معنا عبر الجوال:',
+    'services_products_hint' => 'تعرف على جميع البرامج التي نقدمها لجميع العملاء',
+    'here'                   => 'من هنا',
 ];

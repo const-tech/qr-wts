@@ -103,7 +103,7 @@ class SubscribeController extends Controller
             $existing->save();
 
             return redirect()
-                ->route('whatsapp-gateway.connect', ['token' => $existing->local_token])
+                ->route('whatsapp-gateway.confirm', ['token' => $existing->local_token])
                 ->with('status', __('whatsapp-gateway::messages.welcome_back'));
         }
 
@@ -112,11 +112,18 @@ class SubscribeController extends Controller
                 $sub = $this->gateway->claim($payload, $data['instance_id'], $data['access_token']);
             } else {
                 try {
-                    // Manager::register() already falls through to fallback
-                    // credentials when the remote gateway has no register
-                    // endpoint, so the QR screen always loads.
                     $sub = $this->gateway->register($payload);
-                } catch (Throwable $e) {
+                } catch (\ConstTech\WhatsappGateway\Exceptions\GatewayException $e) {
+                    // 409 phone_exists / email_exists — API already has this customer.
+                    // Find their local record and route them to the confirm page.
+                    if ($e->getCode() === 409) {
+                        $existing = WaSubscription::where('phone', $payload->phone)->latest()->first();
+                        if ($existing) {
+                            return redirect()
+                                ->route('whatsapp-gateway.confirm', ['token' => $existing->local_token])
+                                ->with('status', __('whatsapp-gateway::messages.welcome_back'));
+                        }
+                    }
                     Log::warning('whatsapp-gateway: auto-provision failed (no fallback)', [
                         'error' => $e->getMessage(),
                     ]);
@@ -134,12 +141,29 @@ class SubscribeController extends Controller
                 }
             }
         } catch (Throwable $e) {
+            Log::error('whatsapp-gateway: registration failed', ['error' => $e->getMessage()]);
             return back()
                 ->withInput()
-                ->withErrors(['gateway' => __('whatsapp-gateway::messages.gateway_error') . ' — ' . $e->getMessage()]);
+                ->withErrors(['gateway' => __('whatsapp-gateway::messages.gateway_error')]);
         }
 
-        return redirect()->route('whatsapp-gateway.connect', ['token' => $sub->local_token]);
+        return redirect()->route('whatsapp-gateway.confirm', ['token' => $sub->local_token]);
+    }
+
+    /**
+     * Step 1b — confirmation screen shown after auto-provisioning.
+     * Displays the registered info + obtained credentials (read-only)
+     * before the customer proceeds to the QR pairing screen.
+     */
+    public function confirm(string $token)
+    {
+        $sub = $this->resolve($token);
+
+        if ($sub->isExpired()) {
+            return redirect()->route('whatsapp-gateway.expired', ['token' => $token]);
+        }
+
+        return view('whatsapp-gateway::confirm', compact('sub'));
     }
 
     /**
@@ -205,8 +229,8 @@ class SubscribeController extends Controller
             'ok'     => true,
             'status' => $status->toArray(),
             'sub'    => [
-                'instance_id' => $sub->instance_id,
-                'expires_at'  => $sub->expires_at ? $sub->expires_at->toIso8601String() : null,
+                'has_instance' => ! empty($sub->instance_id),
+                'expires_at'   => $sub->expires_at ? $sub->expires_at->toIso8601String() : null,
             ],
         ];
 
@@ -277,7 +301,8 @@ class SubscribeController extends Controller
         try {
             $this->gateway->driver()->verify($data['instance_id'], $data['access_token']);
         } catch (Throwable $e) {
-            return back()->withErrors(['gateway' => __('whatsapp-gateway::messages.gateway_error') . ' — ' . $e->getMessage()]);
+            Log::warning('whatsapp-gateway: attach credential verification failed', ['error' => $e->getMessage()]);
+            return back()->withErrors(['gateway' => __('whatsapp-gateway::messages.gateway_error')]);
         }
 
         $sub->instance_id = $data['instance_id'];

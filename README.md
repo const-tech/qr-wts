@@ -2,29 +2,26 @@
 
 Reusable Laravel package that provides:
 
-1. A clean PHP client for the **c-wts.com REST gateway** — drivers, DTOs, exceptions.
-2. A self-service **public subscription flow** (Landing → Register → QR + Status → Expired) ready to drop into any Laravel project.
-3. Local mirror of subscriptions in the `wa_subscriptions` table so customers can resume the flow without authenticating.
+1. A PHP client for the **c-wts.com REST gateway** — drivers, DTOs, exceptions.
+2. A self-service **public subscription flow** (Landing → Register → QR → Expired) ready to drop into any Laravel project.
+3. An authenticated **Our Services** page auto-registered on every install.
+4. Local mirror of subscriptions in `wa_subscriptions` so customers can resume without re-registering.
 
-Target: Laravel 8 → 11, PHP 7.3+.
+**Requirements:** Laravel 8–11, PHP 7.3+.
 
 ---
 
 ## 1. The two flows
 
-### Claim flow (default — works with the public c-wts.com API)
+### Claim flow (default)
 
 The customer signs up directly on **c-wts.com**, gets back `instance_id` and
 `access_token`, then pastes them on your registration page. The package
-verifies the credentials against the live gateway via `GET /api/status` and
-saves a local row in `wa_subscriptions`.
-
-This is what `https://c-wts.com/docs` exposes publicly.
+verifies the credentials against the live gateway and saves a local row.
 
 ### Reseller flow (private API — for c-wts.com resellers only)
 
-If you have a private reseller agreement with c-wts.com that lets you create
-instances on behalf of customers, switch the flow:
+If you have a private reseller agreement with c-wts.com, switch the flow:
 
 ```dotenv
 WHATSAPP_GATEWAY_FLOW=reseller
@@ -44,83 +41,82 @@ Default: **claim**.
 
 ## 2. Install
 
-### Option A — local path (recommended while iterating)
-
-In the host project's `composer.json`:
-
-```json
-{
-    "repositories": [
-        {
-            "type": "path",
-            "url": "packages/const-tech/whatsapp-gateway",
-            "options": { "symlink": true }
-        }
-    ],
-    "require": {
-        "const-tech/whatsapp-gateway": "*"
-    }
-}
-```
-
-Drop the package folder under `packages/const-tech/whatsapp-gateway`, then:
-
 ```bash
-composer require const-tech/whatsapp-gateway:*
+composer require const-tech/whatsapp-gateway
 php artisan migrate
 ```
 
-The service provider is auto-discovered. The `WhatsappGateway` facade is
-auto-aliased.
-
-### Option B — private Git repo
-
-Push this folder to its own repo and reference it from `composer.json` as a
-`vcs` repository.
+The service provider and `WhatsappGateway` facade are auto-discovered.
 
 ---
 
 ## 3. Configure
 
-Publish the config (optional — defaults work):
+Publish the config (optional — defaults work out of the box):
 
 ```bash
 php artisan vendor:publish --tag=whatsapp-gateway-config
 ```
 
-`.env` defaults:
+Key `.env` values:
 
 ```dotenv
+# Gateway
 WHATSAPP_GATEWAY_DRIVER=cwts
 WHATSAPP_GATEWAY_FLOW=claim
-WHATSAPP_GATEWAY_BASE_URL=https://c-wts.com
-WHATSAPP_GATEWAY_VERIFY_SSL=false
-WHATSAPP_GATEWAY_SIGNUP_URL=https://c-wts.com/signup
-WHATSAPP_GATEWAY_LOGIN_URL=https://c-wts.com/login
-WHATSAPP_GATEWAY_ROUTE_PREFIX=whatsapp
-WHATSAPP_GATEWAY_SUPPORT_PHONE=0506499275
+
+# Branding shown in the package views
+APP_NAME="My Website"
 WHATSAPP_GATEWAY_HOME_URL=https://your-app.test
-WHATSAPP_GATEWAY_LOGO=/img/logo.svg
+
+# Public subscription route prefix  (default: whatsapp)
+WHATSAPP_GATEWAY_ROUTE_PREFIX=whatsapp
+
+# Our Services page (default: our-services)
+WHATSAPP_GATEWAY_ADMIN_PREFIX=our-services
+WHATSAPP_GATEWAY_BACK_ROUTE=front.home
+WHATSAPP_GATEWAY_SERVICES_MODEL=App\Models\OurService
 ```
+
+> `WHATSAPP_GATEWAY_SERVICES_MODEL` — the Eloquent model that supplies the services
+> table rows (needs `name` and `description` columns). If the class does not
+> exist the services table is silently hidden; the rest of the page still renders.
 
 ---
 
 ## 4. Routes
 
-Auto-registered. With **Mcamara/LaravelLocalization** installed they're nested
-under the active locale and pick up the localization middleware automatically.
+All routes are auto-registered. With **Mcamara/LaravelLocalization** installed
+they're nested under the active locale and pick up localization middleware
+automatically.
 
-| URL                                       | Name                              | Purpose                            |
-| ----------------------------------------- | --------------------------------- | ---------------------------------- |
-| `GET  /{locale}/whatsapp`                 | `whatsapp-gateway.landing`        | Landing + free package preview     |
-| `GET  /{locale}/whatsapp/register`        | `whatsapp-gateway.register.show`  | Form (info + paste credentials)    |
-| `POST /{locale}/whatsapp/register`        | `whatsapp-gateway.register`       | Submit → verify → store            |
-| `GET  /{locale}/whatsapp/connect/{token}` | `whatsapp-gateway.connect`        | QR + live status polling           |
-| `GET  /{locale}/whatsapp/poll/{token}`    | `whatsapp-gateway.poll`           | JSON: latest QR + status (AJAX)    |
-| `POST /{locale}/whatsapp/restart/{token}` | `whatsapp-gateway.restart`        | Re-pair (no-op if not exposed)     |
-| `GET  /{locale}/whatsapp/expired/{token}` | `whatsapp-gateway.expired`        | Upgrade options + back-to-site     |
+### Public subscription flow
 
-Disable auto-routes:
+| URL | Name | Purpose |
+|---|---|---|
+| `GET  /whatsapp` | `whatsapp-gateway.landing` | Landing + free package preview |
+| `GET  /whatsapp/register` | `whatsapp-gateway.register.show` | Registration form |
+| `POST /whatsapp/register` | `whatsapp-gateway.register` | Submit → verify → store |
+| `GET  /whatsapp/connect/{token}` | `whatsapp-gateway.connect` | QR + live status polling |
+| `GET  /whatsapp/poll/{token}` | `whatsapp-gateway.poll` | JSON: latest QR + status (AJAX) |
+| `POST /whatsapp/restart/{token}` | `whatsapp-gateway.restart` | Re-pair session |
+| `GET  /whatsapp/expired/{token}` | `whatsapp-gateway.expired` | Upgrade options |
+
+### Our Services page (authenticated)
+
+| URL | Name | Middleware |
+|---|---|---|
+| `GET /our-services` | `whatsapp-gateway.admin.index` | `web`, `auth` |
+
+The page uses the package's own Bootstrap/WhatsApp layout — no host-app layout
+needed. To disable it:
+
+```php
+// config/whatsapp-gateway.php
+'admin' => [ 'enabled' => false ],
+```
+
+To disable the subscription routes:
 
 ```php
 'routes' => [ 'enabled' => false ],
@@ -134,26 +130,27 @@ Disable auto-routes:
 use ConstTech\WhatsappGateway\Facades\WhatsappGateway;
 use ConstTech\WhatsappGateway\DTOs\RegisterPayload;
 
-// claim flow — verify pasted credentials and store
 $payload = new RegisterPayload(
-    name: 'عيادة المروة',
+    name: 'My Clinic',
     phone: '0506499275',
     email: 'info@example.com',
-    business: 'Al Marwa Clinic',
+    business: 'My Clinic LLC',
     packageId: 'free',
 );
+
+// Claim flow — verify pasted credentials and store
 $sub = WhatsappGateway::claim($payload, 'instance12345', 'access_token_here');
 
-// reseller flow — create on c-wts.com on behalf of the customer
+// Reseller flow — create on c-wts.com on behalf of the customer
 $sub = WhatsappGateway::register($payload);
 
-// session ops
-$qr     = WhatsappGateway::qr($sub);          // base64 / url
-$status = WhatsappGateway::status($sub);       // pending|connected|expired|...
-WhatsappGateway::send($sub, '+966501234567', 'مرحبا');
+// Session ops
+$qr     = WhatsappGateway::qr($sub);
+$status = WhatsappGateway::status($sub);
+WhatsappGateway::send($sub, '+966501234567', 'Hello');
 WhatsappGateway::restart($sub);
 
-// resume flow by URL token
+// Resume flow by URL token
 $sub = WhatsappGateway::findByToken($localToken);
 ```
 
@@ -172,21 +169,21 @@ Override any of:
 - `register.blade.php` — form (claim or reseller mode auto-detected)
 - `qr.blade.php` — QR code + AJAX polling
 - `expired.blade.php` — upgrade options
+- `services.blade.php` — Our Services page
 
-Branding (app name, support phone, logo, home URL) is read from
-`config/whatsapp-gateway.php#branding`. Set it once per project — no template
-edits required.
+Branding (app name, logo, home URL) is read from `config/whatsapp-gateway.php#branding`.
+Set it once per project — no template edits required.
 
 ---
 
 ## 7. Drivers
 
-| Driver | Class                                        | Purpose            |
-| ------ | -------------------------------------------- | ------------------ |
-| `cwts` | `ConstTech\WhatsappGateway\Drivers\CwtsDriver` | Real REST gateway  |
-| `null` | `ConstTech\WhatsappGateway\Drivers\NullDriver` | Tests / local dev  |
+| Driver | Class | Purpose |
+|---|---|---|
+| `cwts` | `ConstTech\WhatsappGateway\Drivers\CwtsDriver` | Real REST gateway |
+| `null` | `ConstTech\WhatsappGateway\Drivers\NullDriver` | Tests / local dev |
 
-To plug in a different gateway (Whapi, Baileys server, etc.) implement
+To add a custom gateway implement
 `ConstTech\WhatsappGateway\Contracts\GatewayDriver` and register it under
 `config('whatsapp-gateway.drivers.<name>')`.
 
@@ -196,42 +193,45 @@ To plug in a different gateway (Whapi, Baileys server, etc.) implement
 
 Documented at <https://c-wts.com/docs>:
 
-| Method | Path           | Params                                              |
-| ------ | -------------- | --------------------------------------------------- |
-| GET    | `/api/status`  | `instance_id`, `access_token`                       |
-| GET    | `/api/qrcode`  | `instance_id`, `access_token`                       |
-| POST   | `/api/send`    | `instance_id`, `access_token`, `number`, `message`  |
+| Method | Path | Params |
+|---|---|---|
+| GET | `/api/status` | `instance_id`, `access_token` |
+| GET | `/api/qrcode` | `instance_id`, `access_token` |
+| POST | `/api/send` | `instance_id`, `access_token`, `number`, `message` |
 
-> **Security:** never expose `access_token` to the frontend. The package
-> always proxies these calls server-side.
+> **Security:** `access_token` is never exposed to the frontend — all calls
+> are proxied server-side.
 
 ---
 
 ## 9. Database
 
-Single table mirrors remote subscriptions for resumable flows:
-
 ```
 wa_subscriptions
-├── local_token     (uuid, public token used in URLs)
+├── local_token     (uuid — public token used in URLs)
 ├── name, phone, email, business
 ├── package_id, instance_id, token, remote_id
 ├── status, expires_at, dashboard_url
 └── meta (json)
 ```
 
-Customize the table name / connection in `config('whatsapp-gateway.storage')`.
+Customize the table name / connection:
+
+```php
+'storage' => [
+    'table'      => 'wa_subscriptions',
+    'connection' => null,
+],
+```
 
 ---
 
 ## 10. Reusing across Laravel projects
 
-For each new project:
+```bash
+composer require const-tech/whatsapp-gateway
+php artisan migrate
+```
 
-1. Copy `packages/const-tech/whatsapp-gateway` → same path in the new repo.
-2. Add the path repository + require in the new project's `composer.json`.
-3. `composer require const-tech/whatsapp-gateway:*`
-4. `php artisan migrate`
-5. Set the env vars.
-
-Same code, same config keys, no edits.
+Then set the `.env` values listed in section 3. Same code, same config keys,
+no copy-paste.

@@ -70,10 +70,17 @@ return [
     'token'              => 'Send token',
     'expires_at'         => 'Plan expires at',
     'restart_session'    => 'Restart session',
-    'restart_unavailable'=> 'Restarting is done from the :brand dashboard.',
+    'restart_unavailable' => 'Restarting is done from the :brand dashboard.',
     'go_to_program'      => 'Back to program',
     'session_restarted'  => 'Session restarted, scan the code again.',
     'open_dashboard'     => 'Open :brand dashboard',
+
+    // Confirm step (after registration, before QR)
+    'confirm_title'              => 'Registered successfully — review your details',
+    'confirm_subtitle'           => 'Your session has been created. Review the information below, then continue to scan the pairing code.',
+    'confirm_credentials_title'  => 'Your provisioned session credentials',
+    'confirm_cta'                => 'Show pairing QR code',
+    'confirm_note'               => 'Session credentials have been saved automatically in the system.',
     'provision_pending'  => 'Provisioning your session… the pairing code will appear shortly.',
     'preparing_session'  => 'Preparing your session…',
     'preparing_long'     => 'This is taking longer than usual. If the delay continues, please contact support:',
@@ -85,4 +92,15 @@ return [
     'no_upgrades'        => 'Upgrades are managed directly in the :brand dashboard.',
 
     'gateway_error'      => 'Could not reach the WhatsApp gateway',
+
+    // Services page (admin)
+    'our_services'           => 'Our Services',
+    'back'                   => 'Back',
+    'service'                => 'Service',
+    'service_description'    => 'Description',
+    'request_service'        => 'Request Service',
+    'no_services'            => 'No services available.',
+    'services_contact_hint'  => 'To add a service, please contact us by phone:',
+    'services_products_hint' => 'View all programs we offer to all clients',
+    'here'                   => 'here',
 ];

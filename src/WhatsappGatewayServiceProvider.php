@@ -49,6 +49,7 @@ class WhatsappGatewayServiceProvider extends ServiceProvider
         );
 
         $this->registerRoutes();
+        $this->registerAdminRoutes();
 
         $this->publishes([
             __DIR__ . '/../config/whatsapp-gateway.php' => config_path('whatsapp-gateway.php'),
@@ -94,6 +95,38 @@ class WhatsappGatewayServiceProvider extends ServiceProvider
 
         Route::group($group, function () {
             $this->loadRoutesFrom(__DIR__ . '/../routes/web.php');
+        });
+    }
+
+    protected function registerAdminRoutes(): void
+    {
+        $cfg = config('whatsapp-gateway.admin', []);
+        if (! ($cfg['enabled'] ?? true)) {
+            return;
+        }
+
+        $prefix     = trim($cfg['prefix'] ?? 'our-services', '/');
+        $middleware = $cfg['middleware'] ?? ['web', 'auth'];
+
+        if (class_exists(LaravelLocalization::class)) {
+            $locale = LaravelLocalization::setLocale();
+            if ($locale) {
+                $prefix = $locale . '/' . $prefix;
+            }
+            $middleware = array_values(array_unique(array_merge(
+                $middleware,
+                ['localeSessionRedirect', 'localizationRedirect', 'localeViewPath']
+            )));
+        }
+
+        $group = [
+            'prefix'     => $prefix,
+            'as'         => $cfg['name'] ?? 'whatsapp-gateway.admin.',
+            'middleware' => $middleware,
+        ];
+
+        Route::group($group, function () {
+            $this->loadRoutesFrom(__DIR__ . '/../routes/admin.php');
         });
     }
 }

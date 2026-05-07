@@ -22,14 +22,14 @@ return [
 
         'cwts' => [
             'class'     => \ConstTech\WhatsappGateway\Drivers\CwtsDriver::class,
-            'base_url'  => env('WHATSAPP_GATEWAY_BASE_URL', 'https://c-wts.com'),
+            'base_url'  => 'https://c-wts.com',
             'timeout'   => 30,
-            'verify_ssl' => env('WHATSAPP_GATEWAY_VERIFY_SSL', false),
+            'verify_ssl' => true,
 
             // The c-wts.com signup URL the customer is sent to so they can
             // create their own instance and obtain {instance_id, access_token}.
-            'signup_url' => env('WHATSAPP_GATEWAY_SIGNUP_URL', 'https://c-wts.com/signup'),
-            'login_url'  => env('WHATSAPP_GATEWAY_LOGIN_URL',  'https://c-wts.com/login'),
+            'signup_url' => 'https://c-wts.com/signup',
+            'login_url'  => 'https://c-wts.com/login',
 
             // Public REST endpoints (relative to base_url). These match the
             // documented c-wts.com /docs page. Edit here only if the remote
@@ -97,14 +97,45 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Routes
+    | Routes (public subscription flow)
     |--------------------------------------------------------------------------
     */
     'routes' => [
         'enabled'    => true,
         'prefix'     => env('WHATSAPP_GATEWAY_ROUTE_PREFIX', 'whatsapp'),
         'name'       => 'whatsapp-gateway.',
-        'middleware' => ['web'],
+        'middleware' => ['web', 'throttle:30,1'],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Admin / Services page
+    |--------------------------------------------------------------------------
+    |
+    | An authenticated "Our Services" page that is automatically registered
+    | when the package is installed. Set 'enabled' to false to disable it.
+    |
+    | The page uses the package's own built-in layout (Bootstrap + WhatsApp
+    | branding) — no host-app layout needed.
+    |
+    | middleware    — Applied to every admin route. 'auth' ensures only logged-
+    |                 in users can access the page.
+    |
+    | services_model — Fully-qualified class of the model that holds your
+    |                   service rows (must have name, description columns).
+    |                   Set to null to hide the services table.
+    |
+    | products_url  — Link to your external products catalogue.
+    |
+    */
+    'admin' => [
+        'enabled'        => true,
+        'prefix'         => env('WHATSAPP_GATEWAY_ADMIN_PREFIX', 'our-services'),
+        'name'           => 'whatsapp-gateway.admin.',
+        'middleware'     => ['web', 'auth'],
+        'services_model' => env('WHATSAPP_GATEWAY_SERVICES_MODEL', \App\Models\OurService::class),
+        'products_url'   => 'https://www.const-tech.org/products',
+        'back_route'     => env('WHATSAPP_GATEWAY_BACK_ROUTE', 'front.home'),
     ],
 
     /*
@@ -130,7 +161,7 @@ return [
         'support_phone' => env('WHATSAPP_GATEWAY_SUPPORT_PHONE', '0506499275'),
         'home_url'      => env('WHATSAPP_GATEWAY_HOME_URL'),
         'terms_url'     => env('WHATSAPP_GATEWAY_TERMS_URL', 'https://c-wts.com/terms'),
-        'logo'          => env('WHATSAPP_GATEWAY_LOGO'),
+        'platform_logo' => '/vendor/whatsapp-gateway/img/logo.png',
     ],
 
     /*

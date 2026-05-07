@@ -29,13 +29,21 @@ class SubscriptionData implements Arrayable
     {
         $self = new self();
         $self->instanceId   = (string) ($data['instance_id'] ?? $data['instance'] ?? '');
-        $self->token        = isset($data['token']) ? (string) $data['token'] : null;
+        // API returns access_token; internal storage uses token
+        $self->token        = isset($data['access_token']) ? (string) $data['access_token']
+            : (isset($data['token'])       ? (string) $data['token'] : null);
         $self->remoteId     = isset($data['id']) ? (string) $data['id'] : null;
-        $self->packageId    = (string) ($data['package_id'] ?? 'free');
+        // API returns plan_id; fall back to package_id for internal DTOs
+        $self->packageId    = (string) ($data['plan_id'] ?? $data['package_id'] ?? 'free');
         $self->status       = (string) ($data['status'] ?? 'pending');
         $self->dashboardUrl = $data['dashboard_url'] ?? null;
-        $self->expiresAt    = isset($data['expires_at']) ? Carbon::parse($data['expires_at']) : null;
-        $self->raw          = $data;
+        // API returns subscription_end as a unix timestamp
+        if (isset($data['subscription_end']) && $data['subscription_end']) {
+            $self->expiresAt = Carbon::createFromTimestamp((int) $data['subscription_end']);
+        } elseif (isset($data['expires_at'])) {
+            $self->expiresAt = Carbon::parse($data['expires_at']);
+        }
+        $self->raw = $data;
         return $self;
     }
 

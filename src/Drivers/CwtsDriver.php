@@ -91,43 +91,26 @@ class CwtsDriver implements GatewayDriver
 
     public function register(RegisterPayload $payload): SubscriptionData
     {
-        // Try the explicitly configured endpoint first; if that fails (404,
-        // 405, etc.), walk through a list of well-known reseller paths.
-        // c-wts.com hasn't published a public register endpoint, so this
-        // gives the host project a chance to land on whichever path their
-        // c-wts.com account exposes without code edits.
-        $candidates = [];
-        $configured = $this->config['endpoints']['register'] ?? null;
-        if ($configured) {
-            $candidates[] = $configured;
-        }
-        $candidates = array_unique(array_merge($candidates, [
-            '/api/register',
-            '/api/customer/register',
-            '/api/account/register',
-            '/api/reseller/register',
-            '/api/subscriptions/register',
-            '/api/instances/create',
-        ]));
+        $configured = $this->config['endpoints']['register'] ?? '/api/register';
 
-        $lastError = null;
-        foreach ($candidates as $path) {
-            try {
-                $response = $this->withAdminToken($this->asForm())->post(
-                    $path,
-                    $payload->toArray()
-                );
-                if ($response->successful()) {
-                    $data = $this->unwrap($response, 'subscription');
-                    return SubscriptionData::fromArray($data);
-                }
-                $lastError = $response->status() . ' on ' . $path;
-            } catch (\Throwable $e) {
-                $lastError = $e->getMessage();
-            }
+        $response = $this->withAdminToken($this->request())
+            ->asJson()
+            ->post($configured, [
+                'name'     => $payload->name,
+                'phone'    => $payload->phone,
+                'email'    => $payload->email    ?: null,
+                'business' => $payload->business ?: null,
+            ]);
+
+        if (! $response->successful()) {
+            $body = $this->safeJson($response);
+            $code = is_array($body) ? ($body['code'] ?? $body['message'] ?? $response->body()) : $response->body();
+            throw new GatewayException('Gateway register failed: ' . $code, $response->status());
         }
 
-        throw new GatewayException('No register endpoint accepted the payload. Last error: ' . ($lastError ?? 'unknown'));
+        $json   = $response->json();
+        $client = is_array($json) ? ($json['client'] ?? $json) : [];
+        return SubscriptionData::fromArray($client);
     }
 
     public function restartSession(string $instanceId, string $accessToken): bool

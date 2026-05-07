@@ -26,7 +26,21 @@ use Illuminate\Support\Str;
  */
 class WaSubscription extends Model
 {
-    protected $guarded = [];
+    protected $fillable = [
+        'local_token',
+        'name',
+        'phone',
+        'email',
+        'business',
+        'package_id',
+        'instance_id',
+        'token',
+        'remote_id',
+        'status',
+        'expires_at',
+        'dashboard_url',
+        'meta',
+    ];
 
     protected $casts = [
         'expires_at' => 'datetime',
